@@ -2,20 +2,28 @@
   <div class="start-screen bg-color-blue">
     <FLanguageSelector @update:locale="setLocale" class="locale-item" />
 
-    <div v-if="!videoPlaying" class="play-button" @click="togglePlayPause">
-      <FButtonIcon name="chevron-right" small />
+    <div>
+      <FButtonIcon
+        v-if="!videoPlaying"
+        name="play"
+        small
+        color="blue-light"
+        class="play-button"
+        @click="togglePlayPause"
+      />
     </div>
 
     <video
       ref="videoRef"
       :src="data.media.video"
-      :class="{ 'video-bg': true, 'video-blur': !videoPlaying }"
+      class="video-bg"
       @play="onVideoPlay"
       @pause="onVideoPause"
       @ended="onVideoPause"
       @click="togglePlayPause"
       loop
     />
+    <div class="video-overlay" :class="{ 'video-blur': !videoPlaying }"></div>
 
     <div class="heading" :class="{ 'fade-out': videoPlaying }">
       <div class="title">
@@ -93,10 +101,24 @@ const toggleCard = () => {
   object-fit: cover;
   z-index: -1;
   cursor: pointer;
-  filter: blur(0);
 }
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(24, 62, 145, 0.4);
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+}
+
 .video-blur {
-  filter: blur(4px);
+  opacity: 1;
 }
 
 .play-button {
@@ -104,26 +126,6 @@ const toggleCard = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  background-color: #2e4fbf;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 1;
-  transition: opacity 0.5s ease;
-
-  svg {
-    width: 40px;
-    height: 40px;
-    fill: white;
-  }
-}
-
-.play-button:hover {
-  opacity: 0.8;
 }
 
 .start-screen {
@@ -177,13 +179,13 @@ const toggleCard = () => {
   background-color: rgba(24, 62, 145, 0.4);
   backdrop-filter: blur(0);
   z-index: 1;
-  transition: all 100ms;
+  transition: all 0.5s ease;
 
   &-active {
     visibility: visible;
     opacity: 1;
     backdrop-filter: blur(2px);
-    transition: all 300ms;
+    transition: all 0.5s ease;
   }
 }
 </style>
