@@ -1,57 +1,70 @@
 import { defineStore } from 'pinia'
 import type { Locale } from '../types/Locale'
-import type { CMSDataParsed } from '../types/CMS'
+import { fetchDirectus } from 'fari-directus-parser'
+import { ref, reactive } from 'vue'
+import demoConfig from './demoConfig.json'
 
-export const useDemoStore = defineStore('demo', {
-  state: () => ({
-    loading: false,
-    error: null as null | string,
-    locale: 'en',
-    data: {
-      title: {
-        en: '',
-        'fr-FR': '',
-        nl: ''
-      },
-      topic: {
-        en: '',
-        'fr-FR': '',
-        nl: ''
-      },
-      media: {
-        logos: [],
-        video: '',
-        sdg: []
-      },
-      research_head: '',
-      research_lead: '',
-      explanation_short: {
-        en: '',
-        'fr-FR': '',
-        nl: ''
-      }
-    } as CMSDataParsed
-  }),
-  actions: {
-    async getCMSData() {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await fetch('http://localhost:3000/api/data')
-        const parsed = await response.json()
+export const useDemoStore = defineStore('demo', () => {
+  const loading = ref(false)
+  const error = ref<boolean | unknown>(false)
+  const locale = ref<Locale>('en')
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
-        this.data = parsed
-      } catch (error) {
-        this.error = 'Error fetching data'
-      } finally {
-        this.loading = false
-      }
+  const data = reactive({
+    title: {
+      en: '',
+      'fr-FR': '',
+      nl: ''
     },
-    setLocale(locale: Locale): any {
-      this.locale = locale
+    description: {
+      en: '',
+      'fr-FR': '',
+      nl: ''
+    },
+    topic: {
+      en: '',
+      'fr-FR': '',
+      nl: ''
+    },
+    media: {
+      logos: [],
+      video: '',
+      sdg: []
+    },
+    research_head: '',
+    research_lead: ''
+  })
+
+  async function getCMSData() {
+    loading.value = true
+    error.value = null
+
+    try {
+      const { id, slug } = demoConfig
+
+      const { title, description, logos, sdg_images, topic, video, research_head, research_lead } =
+        await fetchDirectus({ id, slug })
+
+      ;(data.title = title), (data.description = description)
+      data.topic = topic
+      data.media.logos = logos
+      data.media.logos = logos
+      data.media.sdg = sdg_images
+      data.media.video = video
+      data.research_head = research_head
+      data.research_lead = research_lead
+    } catch (err) {
+      error.value = `Error fetching data: ${err}`
+    } finally {
+      loading.value = false
     }
+  }
+
+  const setLocale = (l: Locale) => (l === 'fr-FR' ? (locale.value = 'fr') : (locale.value = l))
+
+  return {
+    getCMSData,
+    setLocale,
+    data,
+    locale
   }
 })

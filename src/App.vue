@@ -21,7 +21,6 @@
       @pause="onVideoPause"
       @ended="onVideoPause"
       @click="togglePlayPause"
-      loop
     />
     <div class="video-overlay" :class="{ 'video-blur': !videoPlaying }"></div>
 
@@ -35,7 +34,21 @@
 
     <FSlideTransition :show="showCard">
       <FCard v-if="showCard" @close="toggleCard" @update:locale="setLocale" class="card">
-        {{ data.explanation_short[locale] }}
+        {{ data.description[locale] }}
+        <div class="researchers-container">
+          <span class="researchers">
+            research head:
+            <span class="research-head color-black">
+              {{ data.research_head }}
+            </span>
+          </span>
+          <span class="researchers">
+            research lead:
+            <span class="research-lead color-black">
+              {{ data.research_lead }}
+            </span>
+          </span>
+        </div>
         <div v-if="data.media.sdg.length" class="sdg-wrapper">
           <img v-for="item in data.media.sdg" :key="item" :src="item" class="logo mr-sm" />
         </div>
@@ -128,6 +141,22 @@ const toggleCard = () => {
   transform: translate(-50%, -50%);
 }
 
+.researchers-container {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.researchers {
+  color: #888;
+  text-transform: uppercase;
+}
+
+.research-head,
+.research-lead {
+  text-transform: none;
+}
+
 .start-screen {
   width: 100vw;
   height: 100vh;
@@ -158,7 +187,7 @@ const toggleCard = () => {
 }
 
 .logo {
-  width: 2.8rem;
+  height: 3rem;
 }
 
 .card {
